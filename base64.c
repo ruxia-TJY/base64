@@ -138,26 +138,3 @@ unsigned char*base64DecodeStr(unsigned char code[])
 
     return decode;
 }
-
-// 主函数
-int main(int argc,char ** argv)
-{	
-    if(argc == 1){
-        printf("base64 [-En]/[-De] Code\n");
-		printf("	base64编解码。\n");
-		printf("	-En		编码\n");
-		printf("	-De		解码\n");
-		printf("	code	进行编/解码的字符\n");
-    }else if(argc == 3){
-		if(!strcmp(argv[1],"-En")){
-			printf("%s",base64EncodeStr(argv[2]));
-		}else if(!strcmp(argv[1],"-De")){
-			printf("%s",base64DecodeStr(argv[2]));
-		}else{
-			printf("无法识别的参数！ %s",argv[1]);
-		}
-	}else{
-        printf("参数过多或过少！");
-    }
-
-};
