@@ -1,50 +1,55 @@
 #include<stdio.h>
-#include<stdlib.h>		// ÄÚ´æ
+#include<stdlib.h>		// å†…å­˜
 #include<string.h>		// strcmp()
+#include<errno.h>
 
-// base64±àÂë±í
+#define BIT_0_TO_1(x) ((unsigned long)(x << 30)) >> 30
+
+extern int errno;
+
+// base64ç¼–ç è¡¨
 unsigned char* encodeTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-// ¶Ô×Ö·û´®½øĞĞbase64¼ÓÃÜ
-// str£º Òª½øĞĞ¼ÓÃÜµÄ×Ö·û´®
+// å¯¹å­—ç¬¦ä¸²è¿›è¡Œbase64åŠ å¯†
+// strï¼š è¦è¿›è¡ŒåŠ å¯†çš„å­—ç¬¦ä¸²
 unsigned char* base64EncodeStr(unsigned char str[])
 {
-	// str_len,Òª¼ÆËãµÄ×Ö·û´®³¤¶È
-	// encode_len,¼ÓÃÜºóµÄ×Ö·û´®³¤¶È
+	// str_len,è¦è®¡ç®—çš„å­—ç¬¦ä¸²é•¿åº¦
+	// encode_len,åŠ å¯†åçš„å­—ç¬¦ä¸²é•¿åº¦
 	unsigned long str_len, encode_len;
 	
 	str_len = strlen(str);
-	// ¼ÆËã¼ÓÃÜºóµÄ×Ö·û´®³¤¶È
-	// £¨×Ö·û´®³¤¶È + 2£© / 3ÀàËÆÓëÈ¡½øÒ»·¨£¬ÏòÉÏÈ¡Õû£¬
+	// è®¡ç®—åŠ å¯†åçš„å­—ç¬¦ä¸²é•¿åº¦
+	// ï¼ˆå­—ç¬¦ä¸²é•¿åº¦ + 2ï¼‰ / 3ç±»ä¼¼ä¸å–è¿›ä¸€æ³•ï¼Œå‘ä¸Šå–æ•´ï¼Œ
 	encode_len = (str_len + 2) / 3 * 4;
 
-	//·ÖÅäÄÚ´æ
+	//åˆ†é…å†…å­˜
 	unsigned char* encode;
 	encode = (unsigned char*)malloc(sizeof(unsigned char) * encode_len);
 	encode[encode_len] = '\0';
 
-	// ½øĞĞ±àÂë
+	// è¿›è¡Œç¼–ç 
 	int i, j;
-	// Ñ­»·Ã¿Èı¸ö×Ö½ÚÖ´ĞĞ²Ù×÷
+	// å¾ªç¯æ¯ä¸‰ä¸ªå­—èŠ‚æ‰§è¡Œæ“ä½œ
 	for (i = 0, j = 0; i < encode_len - 2; i += 4, j += 3) {
-		// ´Ë´¦½øĞĞÎ»²Ù×÷
-		// ×Ö·û´®µÚÒ»¸ö×Ö½ÚÓÒÒÆÁ½Î»£¬¸ßÎ»²¹Áã
-		// »ñÈ¡¼ÓÃÜºóµÄµÚÒ»¸ö×Ö½Ú        
+		// æ­¤å¤„è¿›è¡Œä½æ“ä½œ
+		// å­—ç¬¦ä¸²ç¬¬ä¸€ä¸ªå­—èŠ‚å³ç§»ä¸¤ä½ï¼Œé«˜ä½è¡¥é›¶
+		// è·å–åŠ å¯†åçš„ç¬¬ä¸€ä¸ªå­—èŠ‚        
 		encode[i] = encodeTable[str[j] >> 2];		
-		// ½«×Ö·û´®µÚÒ»¸ö×Ö½ÚÓë0x3(0000 0011)Ö´ĞĞÓë²Ù×÷£¬»ñÈ¡µÚÒ»¸ö×Ö½ÚµÄµÍÁ½Î»
-		// µÚ¶ş¸ö×Ö½ÚÓÒÒÆËÄÎ»ÓëÖ´ĞĞ»ò²Ù×÷
-		// »ñÈ¡¼ÓÃÜºóµÚ¶ş¸ö×Ö½Ú
+		// å°†å­—ç¬¦ä¸²ç¬¬ä¸€ä¸ªå­—èŠ‚ä¸0x3(0000 0011)æ‰§è¡Œä¸æ“ä½œï¼Œè·å–ç¬¬ä¸€ä¸ªå­—èŠ‚çš„ä½ä¸¤ä½
+		// ç¬¬äºŒä¸ªå­—èŠ‚å³ç§»å››ä½ä¸æ‰§è¡Œæˆ–æ“ä½œ
+		// è·å–åŠ å¯†åç¬¬äºŒä¸ªå­—èŠ‚
 		encode[i + 1] = encodeTable[(str[j] & 0x3) << 4 | str[j + 1] >> 4];		
-		// ½«×Ö·û´®µÚ¶ş¸ö×Ö½ÚÓë0xf(0000 1111)Ö´ĞĞÓë²Ù×÷£¬»ñÈ¡µÚ¶ş¸ö×Ö½ÚµÄµÍËÄÎ»
-		// µÚÈı¸ö×Ö½ÚÓÒÒÆÁùÎ»ÓëÖ´ĞĞ»ò²Ù×÷
-		// »ñÈ¡¼ÓÃÜºóµÄµÚÈı¸ö×Ö½Ú
+		// å°†å­—ç¬¦ä¸²ç¬¬äºŒä¸ªå­—èŠ‚ä¸0xf(0000 1111)æ‰§è¡Œä¸æ“ä½œï¼Œè·å–ç¬¬äºŒä¸ªå­—èŠ‚çš„ä½å››ä½
+		// ç¬¬ä¸‰ä¸ªå­—èŠ‚å³ç§»å…­ä½ä¸æ‰§è¡Œæˆ–æ“ä½œ
+		// è·å–åŠ å¯†åçš„ç¬¬ä¸‰ä¸ªå­—èŠ‚
 		encode[i + 2] = encodeTable[(str[j + 1] & 0xf) << 2 | str[j + 2] >> 6];
-		// ½«×Ö·û´®µÚÈı¸ö×Ö½ÚÓë0x3f(0011 1111)Ö´ĞĞÓë²Ù×÷£¬»ñÈ¡µÚÈı¸ö×Ö½ÚµÄµÍÁùÎ»
-		// »ñÈ¡¼ÓÃÜºóµÚËÄ¸ö×Ö½Ú
+		// å°†å­—ç¬¦ä¸²ç¬¬ä¸‰ä¸ªå­—èŠ‚ä¸0x3f(0011 1111)æ‰§è¡Œä¸æ“ä½œï¼Œè·å–ç¬¬ä¸‰ä¸ªå­—èŠ‚çš„ä½å…­ä½
+		// è·å–åŠ å¯†åç¬¬å››ä¸ªå­—èŠ‚
 		encode[i + 3] = encodeTable[str[j + 2] & 0x3f];
 	}
 
-	// ²¹=
+	// è¡¥=
 	if (str_len % 3 == 1) {
 		encode[encode_len - 2] = '=';
 		encode[encode_len - 1] = '=';
@@ -58,10 +63,10 @@ unsigned char* base64EncodeStr(unsigned char str[])
 }
 
 
-// ½«×Ö·û×ª³É±àÂë±íÀïµÄÎ»ÖÃ²¢·µ»ØË÷ÒıÖµ£¬²»ÔÚ·µ»Ø*£¬=ºÅ·µ»Ø64
-// code£º Òª×ª»»µÄ×Ö·û
-// index£º ÔÚ±àÂë±íÀïµÄÎ»ÖÃ
-// return: Ë÷ÒıÖµ£¬²»ÔÚ·µ»Ø*£¬=ºÅ·µ»Ø64
+// å°†å­—ç¬¦è½¬æˆç¼–ç è¡¨é‡Œçš„ä½ç½®å¹¶è¿”å›ç´¢å¼•å€¼ï¼Œä¸åœ¨è¿”å›*ï¼Œ=å·è¿”å›64
+// codeï¼š è¦è½¬æ¢çš„å­—ç¬¦
+// indexï¼š åœ¨ç¼–ç è¡¨é‡Œçš„ä½ç½®
+// return: ç´¢å¼•å€¼ï¼Œä¸åœ¨è¿”å›*ï¼Œ=å·è¿”å›64
 char changeToArr(char code,int index)
 {
 	if(code >= 65 && code<=90){
@@ -76,29 +81,38 @@ char changeToArr(char code,int index)
 		code += 16;
 	}else if(code == '='){
 		code = 64;
-	}else{
-		printf("²»´æÔÚ×Ö·û!%dÎ»,%c\n",index+1,code);
+	}
+	else{
+		fprintf(stderr,"Characters that cannot be processed: index:%d content:%c\n",index+1,code);
 		return '*';
 	}
 	return code;
 }
 
-// ¶Ôbase64±àÂë½âÃÜ
-// code: Òª½øĞĞ½âÃÜµÄ×Ö·û´®
+// å¯¹base64ç¼–ç è§£å¯†
+// code: è¦è¿›è¡Œè§£å¯†çš„å­—ç¬¦ä¸²
 unsigned char*base64DecodeStr(unsigned char code[])
 {
-	// str_len£º ½âÂëºó×Ö·û´®µÄ³¤¶È
-	// code_len: ±àÂëµÄ³¤¶È
+	// str_lenï¼š è§£ç åå­—ç¬¦ä¸²çš„é•¿åº¦
+	// code_len: ç¼–ç çš„é•¿åº¦
     unsigned long str_len,code_len;
     code_len = strlen(code);
+	
+	// åˆ¤æ–­è¦æ£€æŸ¥çš„å­—ç¬¦ä¸²æ˜¯å¦ä¸º4çš„å€æ•°(base64ä¸€å®šæ˜¯4çš„å€æ•°)
+	// é€šè¿‡æ£€æŸ¥é¦–ä¸¤ä½æ˜¯å¦ä¸º0ï¼Œå››çš„å€æ•°é¦–ä¸¤ä½ä¸€å®šæ˜¯é›¶
+	if(BIT_0_TO_1(code_len) != 0){
+		fprintf(stderr,"Length Error!");
+		return "";
+	}
+
     str_len = code_len / 4 * 3;
     
-    // ·ÖÅäÄÚ´æ
+    // åˆ†é…å†…å­˜
     unsigned char* decode;
     decode = (unsigned char*)malloc(sizeof(unsigned char) * code_len);
     decode[code_len] = '\0';
     
-	// µÈÓÚºÅµÄ¸öÊı
+	// ç­‰äºå·çš„ä¸ªæ•°
 	int EqualsignNum = 0;
 
 	if(code[code_len -1] == '='){
@@ -108,16 +122,16 @@ unsigned char*base64DecodeStr(unsigned char code[])
 		EqualsignNum += 1;
 	}
 
-    // ½øĞĞ½âÂë
+    // è¿›è¡Œè§£ç 
     int i,j;
 
     for(i = 0,j = 0;i < code_len - 3;i += 3,j += 4){
-		// ½âÂë		
+		// è§£ç 		
 		for(int t=j;t<=j+3;t++){
 			if(changeToArr(code[t],t) != '*'){
 				code[t] = changeToArr(code[t],t);
 			}else{				
-				return "ÇëÖØÊÔ";
+				return "";
 			}
 		}
 		
