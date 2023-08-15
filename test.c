@@ -6,7 +6,7 @@ int main(int argc,char *argv[])
 {
     if(argc == 1){
         printf("-e encode String\n");
-        printf("-d decode String");
+        printf("-d decode String\n");
         return 0;
     }
     
