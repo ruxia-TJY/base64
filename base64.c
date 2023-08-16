@@ -1,19 +1,30 @@
+/*
+    Copyright (c) 2023 JiayuTu
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+*/
 #include<stdio.h>
 #include<stdlib.h>		// for malloc
 #include<string.h>		// strcmp()
 #include<errno.h>
 
-#ifdef __x86_64__
-	#define BIT_0_TO_1(x) ((unsigned long)(x << 62)) >> 62
-#elif __i386__
-	#define BIT_0_TO_1(x) ((unsigned long)(x << 30)) >> 30
-#endif
-
 extern int errno;
-
-// base64 encode table
-unsigned char* encodeTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 
 unsigned char* base64EncodeStr(unsigned char str[])
 {
@@ -22,18 +33,14 @@ unsigned char* base64EncodeStr(unsigned char str[])
 	unsigned long str_len, encode_len;
 	
 	str_len = strlen(str);
-	// 计算加密后的字符串长度
-	// calculate the encode length
-	// （str_len + 2） / 3 rounded up
 	encode_len = (str_len + 2) / 3 * 4;
 
-	//malloc
 	unsigned char* encode;
 	encode = (unsigned char*)malloc(sizeof(unsigned char) * encode_len);
 	encode[encode_len] = '\0';
 
 	int i, j;
-	// three byte loop operation
+
 	for (i = 0, j = 0; i < encode_len - 2; i += 4, j += 3) {
 		// get the first byte after encode
 		encode[i] = encodeTable[str[j] >> 2];
@@ -45,7 +52,7 @@ unsigned char* base64EncodeStr(unsigned char str[])
 		encode[i + 3] = encodeTable[str[j + 2] & 0x3f];
 	}
 
-	// replenish =
+	// replenish '='
 	if (str_len % 3 == 1) {
 		encode[encode_len - 2] = '=';
 		encode[encode_len - 1] = '=';
@@ -59,7 +66,7 @@ unsigned char* base64EncodeStr(unsigned char str[])
 }
 
 
-// get index from table，none: *，=: 64
+// get index from table
 // code： the code want to get 
 // index： the index of code in string,for error 
 // return: index in table，if none return '*' and '=' is 64
@@ -102,7 +109,6 @@ unsigned char*base64DecodeStr(unsigned char code[])
 
     str_len = code_len / 4 * 3;
     
-    // malloc
     unsigned char* decode;
     decode = (unsigned char*)malloc(sizeof(unsigned char) * code_len);
     decode[code_len] = '\0';
