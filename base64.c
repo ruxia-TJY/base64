@@ -23,8 +23,11 @@
 #include<stdlib.h>		// for malloc
 #include<string.h>		// strcmp()
 #include<errno.h>
+#include"base64.h"
+
 
 extern int errno;
+
 
 unsigned char* base64EncodeStr(unsigned char str[])
 {

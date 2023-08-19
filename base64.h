@@ -28,10 +28,8 @@
 	#define BIT_0_TO_1(x) ((unsigned long)(x << 30)) >> 30
 #endif
 
-
 // base64 encode table
-unsigned char* encodeTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
+static unsigned char* encodeTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 unsigned char* base64EncodeStr(unsigned char str[]);
 
