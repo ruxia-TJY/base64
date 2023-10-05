@@ -22,12 +22,6 @@
 #ifndef BASE64_H__
 #define BASE64_H__
 
-#ifdef __x86_64__
-	#define BIT_0_TO_1(x) ((unsigned long)(x << 62)) >> 62
-#elif __i386__
-	#define BIT_0_TO_1(x) ((unsigned long)(x << 30)) >> 30
-#endif
-
 // base64 encode table
 static unsigned char* encodeTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

@@ -105,7 +105,7 @@ unsigned char*base64DecodeStr(unsigned char code[])
 	
 	// check if it a multiple of 4(string after encode must be multiple of 4)
 	// first two bits is '00' if it a multiple of 4,if not,return error
-	if(BIT_0_TO_1(code_len) != 0){
+	if((code_len & 0x03) != 0){
 		fprintf(stderr,"Length Error!");
 		return "";
 	}
